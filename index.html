@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campaña de vacunación Antofagasta</title>
     
-    <!-- URL CORRECTA Y ESTABLE PARA CHART.JS DESDE CDNJS -->
-    <script src="https://cloudflare.com"></script>
+    <!-- LIBRERÍA TOTALMENTE COMPATIBLE (CHART.JS V3) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <style>
         body {
@@ -93,7 +93,7 @@
         // Función asíncrona para leer el archivo JSON automáticamente
         async function cargarDatos() {
             try {
-                // Configuración de estilos de Chart.js (Ahora dentro de la función)
+                // Validación y aplicación de estilos globales de la librería
                 if (typeof Chart !== 'undefined') {
                     Chart.defaults.color = '#FFFFFF';
                     Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
@@ -101,7 +101,7 @@
                     throw new Error("La librería Chart.js no se ha cargado correctamente.");
                 }
 
-                // Llama al archivo JSON usando una ruta relativa limpia
+                // Llama al archivo JSON en el mismo directorio
                 const respuesta = await fetch('./datos.json');
                 if (!respuesta.ok) {
                     throw new Error(`No se pudo obtener el JSON. Status: ${respuesta.status}`);
@@ -156,12 +156,12 @@
                 });
 
             } catch (error) {
-                console.error("Error al cargar de forma automática el archivo JSON:", error);
+                console.error("Error al procesar el archivo JSON o construir gráficas:", error);
             }
         }
 
-        // Ejecutar la carga de datos al abrir la página
-        document.addEventListener('DOMContentLoaded', cargarDatos);
+        // Ejecutar la carga cuando el árbol DOM esté completamente listo
+        window.onload = cargarDatos;
     </script>
 </body>
 </html>
