@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campaña de vacunación Antofagasta</title>
-    <!-- Importación de Chart.js para los gráficos interactivos -->
-<script src="https://cloudflare.com"></script>
-<!--   <script src="https://jsdelivr.net"></script> -->
+    
+    <!-- URL CORRECTA Y ESTABLE PARA CHART.JS DESDE CDNJS -->
+    <script src="https://cloudflare.com"></script>
+
     <style>
         body {
             background-color: #25306B;
@@ -32,7 +33,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            border-radius: 4px; /* Formato cuadrado */
+            border-radius: 4px;
         }
         .grid-container {
             display: grid;
@@ -53,7 +54,6 @@
 <body>
 
     <div class="header">
-        <!-- Reemplaza el src con la ruta de tu logo real en GitHub si lo deseas -->
         <img class="logo" src="logo.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'logo\'>LOGO</div>')">
         <div>
             <h1 style="margin:0;">Campaña de vacunación Invierno 2026 Antofagasta</h1>
@@ -90,15 +90,22 @@
     </div>
 
     <script>
-        // Configuración por defecto para que los textos de los gráficos sean blancos
-        Chart.defaults.color = '#FFFFFF';
-        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
-
         // Función asíncrona para leer el archivo JSON automáticamente
         async function cargarDatos() {
             try {
-                // Llama al archivo JSON en el mismo directorio
-                const respuesta = await fetch('datos.json');
+                // Configuración de estilos de Chart.js (Ahora dentro de la función)
+                if (typeof Chart !== 'undefined') {
+                    Chart.defaults.color = '#FFFFFF';
+                    Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+                } else {
+                    throw new Error("La librería Chart.js no se ha cargado correctamente.");
+                }
+
+                // Llama al archivo JSON usando una ruta relativa limpia
+                const respuesta = await fetch('./datos.json');
+                if (!respuesta.ok) {
+                    throw new Error(`No se pudo obtener el JSON. Status: ${respuesta.status}`);
+                }
                 const datos = await respuesta.json();
 
                 // 1. Calcular totales y actualizar métricas de texto
@@ -154,7 +161,7 @@
         }
 
         // Ejecutar la carga de datos al abrir la página
-        cargarDatos();
+        document.addEventListener('DOMContentLoaded', cargarDatos);
     </script>
 </body>
 </html>
