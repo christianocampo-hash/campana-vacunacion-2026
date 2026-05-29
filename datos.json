@@ -1,0 +1,21 @@
+{
+  "meta_global": 325535,
+  "periodo_meses": 4,
+  "progreso_puntos": [
+    { "punto": "Punto Centro", "vacunados": 45000 },
+    { "punto": "Punto Norte", "vacunados": 38000 },
+    { "punto": "Punto Sur", "vacunados": 42000 },
+    { "punto": "Punto Este", "vacunados": 31000 }
+  ],
+  "demografia_sexo": {
+    "Femenino": 82000,
+    "Masculino": 71000,
+    "Otro": 3000
+  },
+  "demografia_edad": {
+    "0-17 años": 25000,
+    "18-49 años": 55000,
+    "50-64 años": 41000,
+    "65+ años": 35000
+  }
+}

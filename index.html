@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaña de vacunación Invierno 2026</title>
+    <!-- Importación de Chart.js para los gráficos interactivos -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body {
+            background-color: #25306B;
+            color: #FFFFFF;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background-color: #FFFFFF;
+            color: #25306B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 4px; /* Formato cuadrado */
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;}
+        .big-number { font-size: 2.5rem; font-weight: bold; margin: 10px 0; color: #00ffcc; }
+        canvas { max-height: 250px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <!-- Reemplaza el src con la ruta de tu logo real en GitHub si lo deseas -->
+        <img class="logo" src="logo.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'logo\'>LOGO</div>')">
+        <div>
+            <h1 style="margin:0;">Campaña de vacunación Invierno 2026</h1>
+            <p style="margin:5px 0 0 0; opacity:0.7;">Monitoreo en tiempo real del progreso epidemiológico</p>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <!-- Tarjeta de Resumen General -->
+        <div class="card">
+            <h2>Progreso General de la Meta</h2>
+            <div id="total-vacunados" class="big-number">0</div>
+            <p>Meta total: <span id="meta-global">325,535</span> personas</p>
+            <p>Duración estipulada: <span id="periodo">4</span> meses (Ampliable)</p>
+        </div>
+
+        <!-- Gráfico de Donas - Distribución por Sexo -->
+        <div class="card">
+            <h2>Distribución por Sexo</h2>
+            <canvas id="chartSexo"></canvas>
+        </div>
+
+        <!-- Gráfico de Barras - Avance por Puntos -->
+        <div class="card">
+            <h2>Vacunados por Punto de Atención</h2>
+            <canvas id="chartPuntos"></canvas>
+        </div>
+
+        <!-- Gráfico de Barras - Grupos Etarios -->
+        <div class="card">
+            <h2>Distribución por Edad</h2>
+            <canvas id="chartEdad"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Configuración por defecto para que los textos de los gráficos sean blancos
+        Chart.defaults.color = '#FFFFFF';
+        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+
+        // Función asíncrona para leer el archivo JSON automáticamente
+        async function cargarDatos() {
+            try {
+                // Llama al archivo JSON en el mismo directorio
+                const respuesta = await fetch('datos.json');
+                const datos = await respuesta.json();
+
+                // 1. Calcular totales y actualizar métricas de texto
+                const totalVacunados = datos.progreso_puntos.reduce((acc, p) => acc + p.vacunados, 0);
+                document.getElementById('total-vacunados').innerText = totalVacunados.toLocaleString() + ' Vacunados';
+                document.getElementById('meta-global').innerText = datos.meta_global.toLocaleString();
+                document.getElementById('periodo').innerText = datos.periodo_meses;
+
+                // 2. Renderizar Gráfico de Sexo (Dona)
+                new Chart(document.getElementById('chartSexo'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(datos.demografia_sexo),
+                        datasets: [{
+                            data: Object.values(datos.demografia_sexo),
+                            backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe']
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                // 3. Renderizar Gráfico de Puntos de Vacunación (Barras Horizontales)
+                new Chart(document.getElementById('chartPuntos'), {
+                    type: 'bar',
+                    data: {
+                        labels: datos.progreso_puntos.map(p => p.punto),
+                        datasets: [{
+                            label: 'Personas Vacunadas',
+                            data: datos.progreso_puntos.map(p => p.vacunados),
+                            backgroundColor: '#00ffcc'
+                        }]
+                    },
+                    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                // 4. Renderizar Gráfico de Edad (Barras Verticales)
+                new Chart(document.getElementById('chartEdad'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(datos.demografia_edad),
+                        datasets: [{
+                            label: 'Cantidad',
+                            data: Object.values(datos.demografia_edad),
+                            backgroundColor: '#ffce56'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+            } catch (error) {
+                console.error("Error al cargar de forma automática el archivo JSON:", error);
+            }
+        }
+
+        // Ejecutar la carga de datos al abrir la página
+        cargarDatos();
+    </script>
+</body>
+</html>
